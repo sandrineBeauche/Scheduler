@@ -8,6 +8,9 @@
   </appender>
    
   <logger name="scheduler.rest" level="TRACE"/>
+  <logger name="o.e.j.u" level="INFO"/>
+  <logger name="org.eclipse.jetty" level="INFO"/>
+  
    
  
   <root level="debug">
