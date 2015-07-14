@@ -14,13 +14,16 @@ public class GroovyScriptTask extends AbstractScriptTask {
 	/**
 	 * Creates a new task to launch a given Groovy script
 	 * @param bodyScript the body of the script to be launched.
+	 * @param id the task id.
 	 */
-	public GroovyScriptTask(String bodyScript, long id) {
+	public GroovyScriptTask(String bodyScript, Long id) {
 		super(bodyScript, id);
 	}
 	
 	
-	
+	/**
+	 * @see AbstractScriptTask#doCallExecution() Object
+	 */
 	@Override
 	public Object doCallExecution() throws ScriptException{
 		ScriptEngine engine  = manager.getEngineByName("groovy");
@@ -28,7 +31,4 @@ public class GroovyScriptTask extends AbstractScriptTask {
 	    return result;
 	}
 	
-	
-	
-
 }

@@ -8,6 +8,10 @@ package scheduler.engine;
  */
 public class GroovyScriptTaskFactory extends ScriptTaskFactory{
 
+	/**
+	 * Creates a Groovy script task.
+	 * @see ScriptTaskFactory#create(String) create
+	 */
 	@Override
 	public AbstractScriptTask create(String bodyString) {
 		currentId++;

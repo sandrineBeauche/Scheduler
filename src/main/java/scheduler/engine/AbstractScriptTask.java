@@ -3,10 +3,18 @@ package scheduler.engine;
 import javax.script.ScriptException;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.script.ScriptEngineManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import scheduler.engine.ScriptSnapshot.TaskStatus;
+import scheduler.rest.MyResource;
 
 /**
  * A task that launches a script.
@@ -16,26 +24,12 @@ import javax.script.ScriptEngineManager;
 public abstract class AbstractScriptTask implements Callable<Object> {
 
 	/**
-	 * Status of the task that indicates of the task is finished successfully or with an exception
-	 * @author Sandrine Ben Mabrouk
-	 *
+	 * The task id.
 	 */
-	public enum TaskStatus {
-		/**
-		 * The task is finished successfully
-		 */
-		SUCCESSFULLY_DONE,
-		/**
-		 * The task is finished with an exception
-		 */
-		ERROR
-	}
-	
-	
 	protected long id;
 	
 	/**
-	 * The body of the script to be executed
+	 * The body of the script to be executed.
 	 */
 	protected String bodyScript = null;
 	
@@ -44,23 +38,24 @@ public abstract class AbstractScriptTask implements Callable<Object> {
 	 */
 	protected Future future = null;
 	
-	/**
-	 * The status of the task to indicate if the task is finished successfully or with an exception
-	 */
-	protected TaskStatus status = null;
-	
 	
 	/**
 	 * A manager that allows to get a ScriptEngine.
 	 */
 	protected static ScriptEngineManager manager = new ScriptEngineManager();
 	
+	/**
+	 * Logger for a task.
+	 */
+	static final Logger LOG = LoggerFactory.getLogger(AbstractScriptTask.class);
+	
 	
 	/**
-	 * Creates a new task to launch a given script
+	 * Creates a new task to launch a given script.
 	 * @param bodyScript the body of the script to be launched.
+	 * @param id the task id.
 	 */
-	public AbstractScriptTask(String bodyScript, long id){
+	public AbstractScriptTask(String bodyScript, Long id){
 		this.bodyScript = bodyScript;
 		this.id = id;
 	}
@@ -75,7 +70,7 @@ public abstract class AbstractScriptTask implements Callable<Object> {
 	
 	
 	/**
-	 * Get the Future representing this task.
+	 * Gets the Future representing this task.
 	 * @return the Future representing this task.
 	 */
 	public Future getFuture(){
@@ -83,27 +78,19 @@ public abstract class AbstractScriptTask implements Callable<Object> {
 	}
 	
 	
-	/**
-	 * Gets the status of a finished task to indicate if this task was successfully done or threw an exception.
-	 * @return the status of the task. Returns null if the task is not finished yet.
-	 */
-	public TaskStatus getStatus(){
-		return this.status;
-	}
-	
 	
 	/**
 	 * Gets the id of the task. This id is used to identify the task when interacting with the scheduler.
 	 * @return the task id.
 	 */
-	public long getId(){
+	public Long getId(){
 		return this.id;
 	}
 	
 	
 	/**
-	 * Performs the script execution with a ScriptEngine
-	 * @return the result of the execution
+	 * Performs the script execution with a ScriptEngine.
+	 * @return the result of the execution.
 	 * @throws ScriptException occurs if the script throws an exception.
 	 */
 	protected abstract Object doCallExecution() throws ScriptException;
@@ -111,21 +98,55 @@ public abstract class AbstractScriptTask implements Callable<Object> {
 	
 	/**
 	 * Encapsulates the script execution in order to set the status of the task and capture exceptions.
+	 * @see Callable#call Object
 	 */
 	@Override
-	public Object call() throws Exception {
-		try{
-			Object result = doCallExecution();
-			this.status = TaskStatus.SUCCESSFULLY_DONE;
-			return result;
-		}
-		catch(ScriptException ex){
-			this.status = TaskStatus.ERROR;
-			Throwable err = ex.getCause();
-			if(err instanceof ScriptException){
-				err = err.getCause();
+	public Object call() throws ScriptException {
+		LOG.info("starts the script with id " + this.id);
+		Object result = doCallExecution();	
+		LOG.info("finished the script with id " + this.id);
+		return result;
+	}
+	
+	
+	/**
+	 * Gets a snapshot of the task, that indicates its current status and its result if the task is finished.
+	 * @return a snapshot of the task.
+	 */
+	public ScriptSnapshot getSnapshot(){
+		if(this.future.isDone()){
+			try{
+				Object result = this.future.get();
+				return new ScriptSnapshot(TaskStatus.SUCCESSFULLY_DONE, result);
 			}
-			return err;
+			catch(CancellationException ex){
+				return new ScriptSnapshot(TaskStatus.CANCELLED, null);
+			}
+			catch(ExecutionException ex){
+				Throwable cause = ex.getCause();
+				while(cause instanceof ScriptException){
+					cause = cause.getCause();
+				}
+				return new ScriptSnapshot(TaskStatus.ERROR, cause);
+			} 
+			catch (InterruptedException ex) {
+				return new ScriptSnapshot(TaskStatus.ERROR, ex);
+			}
+		}
+		else{
+			return new ScriptSnapshot(TaskStatus.RUNNING, null);
+		}
+	}
+	
+	/**
+	 * Waits for the end of th task.
+	 */
+	public void join(){
+		if(!this.future.isDone()){
+			try {
+				this.future.get();
+			} catch (InterruptedException | ExecutionException e) {
+			}
 		}
 	}
 }
