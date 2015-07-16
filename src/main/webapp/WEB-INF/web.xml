@@ -13,6 +13,6 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Scheduler Web Application</servlet-name>
-    <url-pattern>/scheduler/*</url-pattern>
+    <url-pattern>/rest/api/*</url-pattern>
   </servlet-mapping>
 </web-app>
