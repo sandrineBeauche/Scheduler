@@ -1,7 +1,5 @@
 package scheduler.engine;
 
-import javax.script.ScriptException;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -9,29 +7,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import scheduler.engine.ScriptSnapshot.TaskStatus;
-import scheduler.rest.MyResource;
 
 /**
  * A task that launches a script.
  * @author Sandrine Ben Mabrouk
  *
  */
-public abstract class AbstractScriptTask implements Callable<Object> {
+public abstract class AbstractScriptTask extends Task implements Callable<Object> {
 
-	/**
-	 * The task id.
-	 */
-	protected long id;
-	
-	/**
-	 * The body of the script to be executed.
-	 */
-	protected String bodyScript = null;
 	
 	/**
 	 * A Future representing the task and allows to cancel it, get the current status of get the result.
@@ -56,7 +43,7 @@ public abstract class AbstractScriptTask implements Callable<Object> {
 	 * @param id the task id.
 	 */
 	public AbstractScriptTask(String bodyScript, Long id){
-		this.bodyScript = bodyScript;
+		this.scriptContent = bodyScript;
 		this.id = id;
 	}
 	
@@ -75,16 +62,6 @@ public abstract class AbstractScriptTask implements Callable<Object> {
 	 */
 	public Future getFuture(){
 		return this.future;
-	}
-	
-	
-	
-	/**
-	 * Gets the id of the task. This id is used to identify the task when interacting with the scheduler.
-	 * @return the task id.
-	 */
-	public Long getId(){
-		return this.id;
 	}
 	
 	

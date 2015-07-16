@@ -1,9 +1,9 @@
 package scheduler.engine;
 
-import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import scheduler.engine.ScriptSnapshot.TaskStatus;
 import scheduler.rest.test.TestUtils;
 
 /**
@@ -74,18 +73,18 @@ public class ScriptSchedulerTest {
 		String script2 = TestUtils.readScriptFile("DummyScript.groovy");
 		
 		ScriptScheduler scheduler = new ScriptScheduler(5);
-		AbstractScriptTask task1 = scheduler.submitScript(script1);
-		AbstractScriptTask task2 = scheduler.submitScript(script1);
-		AbstractScriptTask task3 = scheduler.submitScript(script2);
+		Task task1 = scheduler.submitScript(script1);
+		Task task2 = scheduler.submitScript(script1);
+		Task task3 = scheduler.submitScript(script2);
 		
-		task3.join();
+		((AbstractScriptTask) task3).join();
 		
-		ArrayList<Long> running = scheduler.getRunningTasks();
+		ArrayList<Task> running = scheduler.getRunningTasks();
 		
-		Assert.assertThat(running, containsInAnyOrder(task1.getId(), task2.getId()));
+		Assert.assertThat(running, containsInAnyOrder(task1, task2));
 		
-		task1.getFuture().cancel(true);
-		task2.getFuture().cancel(true);
+		((AbstractScriptTask) task1).getFuture().cancel(true);
+		((AbstractScriptTask) task2).getFuture().cancel(true);
 	}
 	
 	
@@ -98,7 +97,7 @@ public class ScriptSchedulerTest {
 		
 		ScriptScheduler scheduler = new ScriptScheduler(5);
 		
-		ArrayList<Long> running = scheduler.getRunningTasks();
+		ArrayList<Task> running = scheduler.getRunningTasks();
 		
 		Assert.assertThat(running, emptyIterable());
 	}
@@ -114,18 +113,18 @@ public class ScriptSchedulerTest {
 		String script2 = TestUtils.readScriptFile("DummyScript.groovy");
 		
 		ScriptScheduler scheduler = new ScriptScheduler(5);
-		AbstractScriptTask task1 = scheduler.submitScript(script1);
-		AbstractScriptTask task2 = scheduler.submitScript(script1);
-		AbstractScriptTask task3 = scheduler.submitScript(script2);
+		Task task1 = scheduler.submitScript(script1);
+		Task task2 = scheduler.submitScript(script1);
+		Task task3 = scheduler.submitScript(script2);
 		
-		task3.join();
+		((AbstractScriptTask) task3).join();
 		
-		ArrayList<Long> finished = scheduler.getFinishedTasks();
+		ArrayList<Task> finished = scheduler.getFinishedTasks();
 		
-		Assert.assertThat(finished, containsInAnyOrder(task3.getId()));
+		Assert.assertThat(finished, containsInAnyOrder(task3));
 		
-		task1.getFuture().cancel(true);
-		task2.getFuture().cancel(true);
+		((AbstractScriptTask) task1).getFuture().cancel(true);
+		((AbstractScriptTask) task2).getFuture().cancel(true);
 	}
 	
 	
@@ -138,7 +137,7 @@ public class ScriptSchedulerTest {
 		
 		ScriptScheduler scheduler = new ScriptScheduler(5);
 		
-		ArrayList<Long> finished = scheduler.getRunningTasks();
+		ArrayList<Task> finished = scheduler.getRunningTasks();
 		
 		Assert.assertThat(finished, emptyIterable());
 	}

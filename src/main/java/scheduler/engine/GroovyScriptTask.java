@@ -1,8 +1,8 @@
 package scheduler.engine;
 
 import javax.script.ScriptException;
-
 import javax.script.ScriptEngine;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A task that launches a Groovy script.
@@ -27,7 +27,7 @@ public class GroovyScriptTask extends AbstractScriptTask {
 	@Override
 	public Object doCallExecution() throws ScriptException{
 		ScriptEngine engine  = manager.getEngineByName("groovy");
-	    Object result = engine.eval(this.bodyScript);
+	    Object result = engine.eval(this.scriptContent);
 	    return result;
 	}
 	

@@ -54,14 +54,14 @@ public class ScriptScheduler {
 	
 	/**
 	 * Gets the tasks that are running.
-	 * @return a list of id corresponding to the running tasks.
+	 * @return a list of running tasks.
 	 */
-	public ArrayList<Long> getRunningTasks(){
-		ArrayList<Long> result = new ArrayList<Long>(this.scripts.size());
+	public ArrayList<Task> getRunningTasks(){
+		ArrayList<Task> result = new ArrayList<Task>(this.scripts.size());
 		for(Map.Entry<Long, AbstractScriptTask> current: this.scripts.entrySet()){
 			AbstractScriptTask currentTask = current.getValue();
 			if(!currentTask.getFuture().isDone()){
-				result.add(current.getKey());
+				result.add(current.getValue());
 			}
 		}
 		return result;
@@ -72,12 +72,12 @@ public class ScriptScheduler {
 	 * Gets the tasks that are finished.
 	 * @return a list of id corresponding to the finished tasks.
 	 */
-	public ArrayList<Long> getFinishedTasks(){
-		ArrayList<Long> result = new ArrayList<Long>(this.scripts.size());
+	public ArrayList<Task> getFinishedTasks(){
+		ArrayList<Task> result = new ArrayList<Task>(this.scripts.size());
 		for(Map.Entry<Long, AbstractScriptTask> current: this.scripts.entrySet()){
 			AbstractScriptTask currentTask = current.getValue();
 			if(currentTask.getFuture().isDone()){
-				result.add(current.getKey());
+				result.add(current.getValue());
 			}
 		}
 		return result;

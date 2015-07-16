@@ -6,7 +6,7 @@ import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
 import scheduler.engine.ScriptSnapshot;
-import scheduler.engine.ScriptSnapshot.TaskStatus;
+import scheduler.engine.TaskStatus;
 
 public class ScriptSnapshotMatcher extends BaseMatcher<ScriptSnapshot> {
 

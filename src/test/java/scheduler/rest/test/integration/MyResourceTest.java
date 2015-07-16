@@ -8,13 +8,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
-import scheduler.rest.MyResource;
+import scheduler.rest.TaskResource;
 
 public class MyResourceTest extends JerseyTest {
 
 	@Override
     protected Application configure() {
-        return new ResourceConfig(MyResource.class);
+        return new ResourceConfig(TaskResource.class);
     }
 	
 	@Test

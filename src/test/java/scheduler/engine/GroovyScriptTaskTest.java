@@ -4,17 +4,17 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static scheduler.rest.test.ScriptSnapshotMatcher.equivalentSnapshot;
 import groovy.lang.MissingMethodException;
-import javax.script.ScriptException;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.script.ScriptException;
+
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import scheduler.engine.ScriptSnapshot.TaskStatus;
 import scheduler.rest.test.TestUtils;
 
 /**
