@@ -74,7 +74,7 @@ public class TaskResource {
     
     
     @GET 
-    @Path("{taskId}/result")
+    @Path("{taskId}/status")
     @Produces(MediaType.APPLICATION_JSON)
     public ScriptSnapshot getResult(@PathParam("taskId") long id) throws NotFoundException{
     	LOG.info("Get the result of task " + id);
