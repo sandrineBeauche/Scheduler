@@ -1,23 +1,30 @@
 package scheduler.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.NotFoundException;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import scheduler.engine.GroovyScriptTask;
+import scheduler.engine.AbstractScriptTask;
+import scheduler.engine.ScriptScheduler;
 import scheduler.engine.ScriptSnapshot;
 import scheduler.engine.Task;
-import scheduler.engine.TaskStatus;
+import scheduler.engine.UnknownTaskException;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -27,26 +34,26 @@ public class TaskResource {
 
 	static final Logger LOG = LoggerFactory.getLogger(TaskResource.class);
 	
-    /**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
-     *
-     * @return String that will be returned as a text/plain response.
-     */
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
-    	LOG.trace("Start GetIt");
-        return "Got it!";
+   
+    
+    protected void setResponseStatus(HttpServletResponse response, Status status){
+    	response.setStatus(status.getStatusCode());
+    	try {
+            response.flushBuffer();
+        }catch(Exception e){}
     }
     
     
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public Long submit(String script){
+    public Long submit(String script, @Context final HttpServletResponse response){
     	LOG.info("submit the script " + script);
-    	return 3L;
+    	Task newTask = ScriptScheduler.getInstance().submitScript(script);
+    	
+    	setResponseStatus(response, Response.Status.CREATED);
+    	
+    	return newTask.getId();
     }
     
     
@@ -54,29 +61,42 @@ public class TaskResource {
     @Path("running")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Task> getRunning(){
-    	ArrayList<Task> result = new ArrayList<Task>();
-    	GroovyScriptTask task1 = new GroovyScriptTask("coucou", 1L);
-    	GroovyScriptTask task2 = new GroovyScriptTask("sandrine", 2L);
-    	GroovyScriptTask task3 = new GroovyScriptTask("t'es geniale", 3L);
-    	
-    	result.add(task1);
-    	result.add(task2);
-    	result.add(task3);
-    	
-    	return result;
+    	return ScriptScheduler.getInstance().getRunningTasks();
+    }
+    
+    
+    @GET
+    @Path("finished")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Task> getFinished(){
+    	return ScriptScheduler.getInstance().getFinishedTasks();
     }
     
     
     @GET 
     @Path("{taskId}/result")
     @Produces(MediaType.APPLICATION_JSON)
-    public ScriptSnapshot getResult(@PathParam("taskId") long id){
+    public ScriptSnapshot getResult(@PathParam("taskId") long id) throws NotFoundException{
     	LOG.info("Get the result of task " + id);
-    	ScriptSnapshot result =  new ScriptSnapshot();
-    	result.setStatus(TaskStatus.SUCCESSFULLY_DONE);
-    	result.setResult(new ArithmeticException("Division by zero"));
     	
-    	return result;
+    	try {
+			AbstractScriptTask task = ScriptScheduler.getInstance().getTask(id);
+			return task.getSnapshot();
+		} catch (UnknownTaskException e) {
+			throw new NotFoundException("Task with id " + id + " not found");
+		}
+    }
+    
+    
+    @DELETE
+    @Path("{taskId}")
+    public void removeTask(@PathParam("taskId") long id) throws NotFoundException{
+    	LOG.info("Remove the task " + id);
+    	try {
+			ScriptScheduler.getInstance().removeTask(id);
+		} catch (UnknownTaskException e) {
+			throw new NotFoundException("Task with id " + id + " not found");
+		}
     }
     
 }

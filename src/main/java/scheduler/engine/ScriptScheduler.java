@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
 /**
  * The script scheduler that manages the tasks.
  * @author Sandrine Ben Mabrouk
@@ -28,6 +29,15 @@ public class ScriptScheduler {
 	 */
 	protected ScriptTaskFactory taskFactory = null;
 	
+	
+	private static ScriptScheduler INSTANCE = null;
+
+	public static final ScriptScheduler getInstance() {
+	   if(INSTANCE == null){
+		   INSTANCE = new ScriptScheduler(5);
+	   }
+	   return INSTANCE;
+	}
 	
 	/**
 	 * Creates a new script scheduler.
