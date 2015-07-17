@@ -2,12 +2,11 @@ package scheduler.rest;
 
 import java.util.List;
 
-import javax.ws.rs.NotFoundException;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -37,6 +36,7 @@ public class TaskResource {
    
     
     protected void setResponseStatus(HttpServletResponse response, Status status){
+    	LOG.info("HTTP serlet response is of type " + response.getClass().getName());
     	response.setStatus(status.getStatusCode());
     	try {
             response.flushBuffer();
