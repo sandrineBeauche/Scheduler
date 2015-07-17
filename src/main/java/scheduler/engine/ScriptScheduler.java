@@ -6,6 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * The script scheduler that manages the tasks.
@@ -13,6 +16,12 @@ import java.util.concurrent.Executors;
  *
  */
 public class ScriptScheduler {
+	
+	
+	/**
+	 * Logger for the scheduler.
+	 */
+	static final Logger LOG = LoggerFactory.getLogger(ScriptScheduler.class);
 	
 	/**
 	 * The scripts managed by the scheduler.
@@ -30,26 +39,47 @@ public class ScriptScheduler {
 	protected ScriptTaskFactory taskFactory = null;
 	
 	
+	/**
+	 * The number max of thread that can be used by the scheduler to execute scripts.
+	 */
+	protected int maxNbThread;
+	
+	
 	private static ScriptScheduler INSTANCE = null;
 
 	public static final ScriptScheduler getInstance() {
 	   if(INSTANCE == null){
-		   INSTANCE = new ScriptScheduler(5);
+		   INSTANCE = new ScriptScheduler();
 	   }
 	   return INSTANCE;
 	}
 	
 	/**
 	 * Creates a new script scheduler.
-	 * @param maxThreads the number max of threads that executes the scripts.
 	 */
-	public ScriptScheduler(int maxThreads){
+	public ScriptScheduler(){
 		this.scripts = new ConcurrentHashMap<Long, AbstractScriptTask>();
-		this.threadPool = Executors.newFixedThreadPool(maxThreads);
-		
 		this.taskFactory = new GroovyScriptTaskFactory();
 	}
 	
+	
+	
+	/**
+	 * Get the number max of threads used by the scheduler.
+	 * @return the number max of threads used by the scheduler.
+	 */
+	public int getMaxNbThread() {
+		return maxNbThread;
+	}
+
+	/**
+	 * Set the number max of threads used by the scheduler
+	 * @param maxNbThread the number max of threads used by the scheduler
+	 */
+	public void setMaxNbThread(int maxNbThread) {
+		this.maxNbThread = maxNbThread;
+	}
+
 	/**
 	 * Submit a new script to the scheduler in order to execute it.
 	 * @param bodyScript the content of the script to be executed.
@@ -120,11 +150,19 @@ public class ScriptScheduler {
 		return result;
 	}
 	
+	/**
+	 * Starts the scheduler engine. 
+	 */
+	public void start(){
+		LOG.info("Start the scheduler engine");
+		this.threadPool = Executors.newFixedThreadPool(this.maxNbThread);
+	}
 	
 	/**
 	 * Shutdown the scheduler engine.
 	 */
 	public void shutdown(){
+		LOG.info("Shutdown the scheduler engine");
 		this.threadPool.shutdown();
 		this.scripts.clear();
 	}

@@ -8,7 +8,10 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import scheduler.rest.test.TestUtils;
@@ -19,7 +22,28 @@ import scheduler.rest.test.TestUtils;
  *
  */
 public class ScriptSchedulerTest {
-
+	
+	protected ScriptScheduler scheduler = null;
+	
+	@BeforeClass
+	public static void setUpClass() {
+	  	ScriptScheduler.getInstance().setMaxNbThread(5);
+	}
+	
+	
+	@Before
+	public void setUp() {
+		this.scheduler = ScriptScheduler.getInstance();
+		this.scheduler.start();
+	}
+	
+	
+	@After
+	public void tearDown() {
+		this.scheduler.shutdown();
+	}
+	
+	
 	/**
 	 * Test submitting a script to the scheduler.
 	 * @throws IOException if an error occurs during the script reading.
@@ -27,7 +51,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testSubmitScript() throws IOException {
 		String script = TestUtils.readScriptFile("DummyScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+		
 		AbstractScriptTask task = scheduler.submitScript(script);
 		
 		task.join();
@@ -48,7 +72,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testSubmitSeveralScript() throws IOException {
 		String script = TestUtils.readScriptFile("LongScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+	
 		AbstractScriptTask task1 = scheduler.submitScript(script);
 		AbstractScriptTask task2 = scheduler.submitScript(script);
 		
@@ -72,7 +96,6 @@ public class ScriptSchedulerTest {
 		String script1 = TestUtils.readScriptFile("LongScript.groovy");
 		String script2 = TestUtils.readScriptFile("DummyScript.groovy");
 		
-		ScriptScheduler scheduler = new ScriptScheduler(5);
 		Task task1 = scheduler.submitScript(script1);
 		Task task2 = scheduler.submitScript(script1);
 		Task task3 = scheduler.submitScript(script2);
@@ -95,8 +118,6 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testGetRunningTasksEmpty() throws IOException {
 		
-		ScriptScheduler scheduler = new ScriptScheduler(5);
-		
 		ArrayList<Task> running = scheduler.getRunningTasks();
 		
 		Assert.assertThat(running, emptyIterable());
@@ -112,7 +133,6 @@ public class ScriptSchedulerTest {
 		String script1 = TestUtils.readScriptFile("LongScript.groovy");
 		String script2 = TestUtils.readScriptFile("DummyScript.groovy");
 		
-		ScriptScheduler scheduler = new ScriptScheduler(5);
 		Task task1 = scheduler.submitScript(script1);
 		Task task2 = scheduler.submitScript(script1);
 		Task task3 = scheduler.submitScript(script2);
@@ -134,9 +154,6 @@ public class ScriptSchedulerTest {
 	 */
 	@Test
 	public void testGetFinishedTasksEmpty() throws IOException {
-		
-		ScriptScheduler scheduler = new ScriptScheduler(5);
-		
 		ArrayList<Task> finished = scheduler.getRunningTasks();
 		
 		Assert.assertThat(finished, emptyIterable());
@@ -151,7 +168,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testRemoveDummyTask() throws IOException, UnknownTaskException {
 		String script = TestUtils.readScriptFile("DummyScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+		
 		AbstractScriptTask task = scheduler.submitScript(script);
 		
 		task.join();
@@ -170,7 +187,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testRemoveLongTask() throws IOException, UnknownTaskException {
 		String script = TestUtils.readScriptFile("LongScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+		
 		AbstractScriptTask task = scheduler.submitScript(script);
 		
 		scheduler.removeTask(task.getId());
@@ -189,7 +206,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testRemoveUnknownTask() throws IOException{
 		String script = TestUtils.readScriptFile("DummyScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+	
 		AbstractScriptTask task = scheduler.submitScript(script);
 		
 		Long id = task.getId() + 1;
@@ -212,7 +229,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testGetTask() throws IOException, UnknownTaskException {
 		String script = TestUtils.readScriptFile("DummyScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+	
 		AbstractScriptTask task = scheduler.submitScript(script);
 		
 		AbstractScriptTask result = scheduler.getTask(task.getId());
@@ -227,7 +244,7 @@ public class ScriptSchedulerTest {
 	@Test
 	public void testGetUnknownTask() throws IOException {
 		String script = TestUtils.readScriptFile("DummyScript.groovy");
-		ScriptScheduler scheduler = new ScriptScheduler(5);
+		
 		AbstractScriptTask task = scheduler.submitScript(script);
 		Long id = task.getId() + 1;
 		

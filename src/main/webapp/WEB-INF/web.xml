@@ -15,4 +15,7 @@
     <servlet-name>Scheduler Web Application</servlet-name>
     <url-pattern>/rest/api/*</url-pattern>
   </servlet-mapping>
+  <listener>
+    <listener-class>scheduler.rest.AppContextListener</listener-class>
+  </listener>
 </web-app>
