@@ -1,0 +1,37 @@
+.sourceSection > pre {
+    	display: inline-block;
+    	max-height: 200px;
+    	width: 400px;
+    	min-height: 50px;
+    	overflow: auto;
+    	margin: 0 1em;
+    	border: 1px solid black;
+	}
+	
+.sourceSection > span, button{
+		vertical-align: top;
+		margin-top: 1em;
+	}
+	
+	.borderlist {
+    	list-style-position:inside;
+    	border: 1px solid black;
+    	list-style-type: none;
+   		padding: 1em 1em;
+	}
+	
+
+
+span.scriptCode {
+    margin: 20px 10px 20px 30px;
+    height: 50px
+}
+
+.idScript {
+    vertical-align: top;
+}
+
+.sourceSection{
+    vertical-align: top;
+    margin-left: 4em;
+}

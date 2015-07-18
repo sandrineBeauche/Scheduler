@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Scheduler Web client</title>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://canjs.com/release/latest/can.jquery.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/black-tie/jquery-ui.css">
+    <link rel="stylesheet" href="client.css">
+    
+    <script src="client.js"></script>
+</head>
+<body>
+<h1>Welcome to the scheduler console!</h1>
+<div id="taskViews">
+</div>
+<div id="dialog" title="Status and result">
+
+</div>
+<script id='tasksViewMustache' type='text/mustache'>
+<div id="tabs">	
+<ul>
+    	<li><a href="#tabs-1">New script</a></li>
+    	<li><a href="#tabs-2">Finished scripts</a></li>
+    	<li><a href="#tabs-3">Running scripts</a></li>
+  </ul>
+  <div id="tabs-1">
+    <p>Script content: </p>
+	<task-submit>
+		<form id='taskSubmitForm'>
+			<textarea rows="10" cols="50" id="scriptContentText" name='scriptContent'></textarea>
+			<p>
+				<input type="submit" value="Submit" can-click="saveTask"/>
+			</p>
+  		</form>
+	</task-submit>
+  </div>
+  <div id="tabs-2">
+    <tasks-view-finished></tasks-view-finished>
+  </div>
+  <div id="tabs-3">
+    <tasks-view-running></tasks-view-running>
+  </div>
+</div>
+</script>
+<script id='statusTaskViewMustache' type='text/mustache'>
+	<ul>
+    {{#each tasks}}
+    <li class="borderlist">
+      <span class="idScript">Id: #{{id}}</span>
+ 	  <span class="sourceSection">Source:<pre><code>{{scriptContent}}</code></pre></span>
+	  <button type="button" class="getResultButton" value="getResult" can-click="getResult">Get the result</button>
+      <button type="button" class="deleteButton" value="delete" can-click="destroy">Delete</button>
+    </li>
+    {{/each}}
+  </ul>
+</script>
+<script id='statusTaskDialogMustache' type='text/mustache'>
+	<div>Status: {{status}}</div>
+	{{#result}}
+		{{#result.type}}
+			<div>Result type: {{result.type}}</div>
+			<div>Result value: {{result.value}}</div>
+		{{/result.type}}
+		{{^result.type}}
+			<div>Result: {{result}}</div>
+		{{/result.type}}
+	{{/result}}
+</script>
+</body>
+</html>
