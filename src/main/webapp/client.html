@@ -16,8 +16,7 @@
 <h1>Welcome to the scheduler console!</h1>
 <div id="taskViews">
 </div>
-<div id="dialog" title="Status and result">
-
+<div id="dialog">
 </div>
 <script id='tasksViewMustache' type='text/mustache'>
 <div id="tabs">	
@@ -29,12 +28,13 @@
   <div id="tabs-1">
     <p>Script content: </p>
 	<task-submit>
-		<form id='taskSubmitForm'>
+		
 			<textarea rows="10" cols="50" id="scriptContentText" name='scriptContent'></textarea>
 			<p>
-				<input type="submit" value="Submit" can-click="saveTask"/>
+				
+				<button type="button" value="submit" can-click="saveTask">Submit</button>
 			</p>
-  		</form>
+  		
 	</task-submit>
   </div>
   <div id="tabs-2">
@@ -50,7 +50,7 @@
     {{#each tasks}}
     <li class="borderlist">
       <span class="idScript">Id: #{{id}}</span>
- 	  <span class="sourceSection">Source:<pre><code>{{scriptContent}}</code></pre></span>
+ 	  <span class="sourceSection">Source:<pre class="codeSection"><code>{{scriptContent}}</code></pre></span>
 	  <button type="button" class="getResultButton" value="getResult" can-click="getResult">Get the result</button>
       <button type="button" class="deleteButton" value="delete" can-click="destroy">Delete</button>
     </li>
@@ -60,14 +60,14 @@
 <script id='statusTaskDialogMustache' type='text/mustache'>
 	<div>Status: {{status}}</div>
 	{{#result}}
-		{{#result.type}}
-			<div>Result type: {{result.type}}</div>
-			<div>Result value: {{result.value}}</div>
-		{{/result.type}}
-		{{^result.type}}
-			<div>Result: {{result}}</div>
-		{{/result.type}}
+		{{#resultClass}}
+			<div>Result type: {{resultClass}}</div>
+		{{/resultClass}}
+		<div>Result: <pre class="codeSection">{{result}}</pre></div>
 	{{/result}}
+</script>
+<script id='messageCreatedDialogMustache' type='text/mustache'>
+	<div>Script successfully submitted with id {{taskId}} {{</div>
 </script>
 </body>
 </html>
