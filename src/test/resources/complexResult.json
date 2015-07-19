@@ -1,0 +1,13 @@
+{
+  "status" : "SUCCESSFULLY_DONE",
+  "resultClass" : "Person",
+  "result" : {
+    "name" : "Ben Mabrouk",
+    "firstname" : "sandrine",
+    "address" : {
+      "street" : "24 cours de Bilbao",
+      "zipcode" : "35200",
+      "country" : "France"
+    }
+  }
+}

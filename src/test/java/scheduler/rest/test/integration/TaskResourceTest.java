@@ -4,8 +4,12 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
+import static scheduler.rest.test.ScriptSnapshotMatcher.equivalentSnapshot;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +24,7 @@ import javax.ws.rs.core.Response;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.grizzly2.servlet.GrizzlyWebContainerFactory;
-import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
@@ -39,6 +43,7 @@ import scheduler.engine.ScriptSnapshot;
 import scheduler.engine.Task;
 import scheduler.engine.TaskStatus;
 import scheduler.engine.UnknownTaskException;
+import scheduler.rest.SchedulerObjectMapperProvider;
 import scheduler.rest.TaskResource;
 import scheduler.rest.test.TestUtils;
 
@@ -49,15 +54,14 @@ public class TaskResourceTest extends JerseyTest {
 	@Override
     protected Application configure() {
 		enable(TestProperties.LOG_TRAFFIC);
-        ResourceConfig result = new ResourceConfig(TaskResource.class);
+        ResourceConfig result = new ResourceConfig(TaskResource.class,  
+        							SchedulerObjectMapperProvider.class);
         return result;
     }
 	
 	@Override
 	protected void configureClient(ClientConfig config) {
-	    config.register(MoxyJsonFeature.class);
-	    
-	    
+	    config.register(JacksonFeature.class);
 	}
 	
 	
@@ -131,6 +135,12 @@ public class TaskResourceTest extends JerseyTest {
 		String script = TestUtils.readScriptFile("DummyScript.groovy");
 		Entity<String> scriptEntity = Entity.entity(script, MediaType.TEXT_PLAIN);
 		Response response = target("scheduler/task").request(MediaType.TEXT_PLAIN).post(scriptEntity);
+		
+		BufferedReader buf = new BufferedReader(new InputStreamReader(response.readEntity(InputStream.class)));
+		String result = buf.readLine();
+		buf.close();
+		
+		Long id = new Long(result);
 		
 		Assert.assertEquals(201, response.getStatus());
     }
@@ -311,4 +321,65 @@ public class TaskResourceTest extends JerseyTest {
 		Assert.assertThat(snapshot, samePropertyValuesAs(expected));
 	}
 	
+	
+	/**
+	 * Test groovy script launching and get the result with a snapshot.
+	 * @throws IOException if an error occurs during the script reading.
+	 */
+	@Test
+	public void testGetResultDummyScript() throws IOException {
+		String script = TestUtils.readScriptFile("DummyScript.groovy");
+		AbstractScriptTask task = scheduler.submitScript(script);
+		
+		Response response = target("scheduler/task/" + task.getId() + "/status").request().get();
+		ScriptSnapshot snapshot = SchedulerObjectMapperProvider.getNewObjectMapper()
+			.readValue(response.readEntity(InputStream.class), ScriptSnapshot.class);
+		
+		ScriptSnapshot expected = new ScriptSnapshot(TaskStatus.SUCCESSFULLY_DONE, 
+													"Inside DummyScript");
+		
+		Assert.assertThat(snapshot, samePropertyValuesAs(expected));
+		
+		((AbstractScriptTask) task).getFuture().cancel(true);
+	}
+	
+	
+	/**
+	 * Test groovy script launching and get the result with a snapshot.
+	 * @throws IOException if an error occurs during the script reading.
+	 */
+	@Test
+	public void testGetResultExceptionScript() throws IOException {
+		String script = TestUtils.readScriptFile("ExceptionScript.groovy");
+		AbstractScriptTask task = scheduler.submitScript(script);
+		
+		Response response = target("scheduler/task/" + task.getId() + "/status").request().get();
+		ScriptSnapshot snapshot = SchedulerObjectMapperProvider.getNewObjectMapper()
+				.readValue(response.readEntity(InputStream.class), ScriptSnapshot.class);
+		
+		Assert.assertThat(snapshot, equivalentSnapshot(TaskStatus.ERROR, 
+				ArithmeticException.class));
+		
+		((AbstractScriptTask) task).getFuture().cancel(true);
+	}
+	
+	
+	/**
+	 * Test groovy script launching and get the result with a snapshot.
+	 * @throws IOException if an error occurs during the script reading.
+	 */
+	@Test
+	public void testGetResultBeanScript() throws IOException {
+		String script = TestUtils.readScriptFile("ComplexBeanScript.groovy");
+		AbstractScriptTask task = scheduler.submitScript(script);
+		
+		Response response = target("scheduler/task/" + task.getId() + "/status").request().get();
+		ScriptSnapshot snapshot = SchedulerObjectMapperProvider.getNewObjectMapper()
+				.readValue(response.readEntity(InputStream.class), ScriptSnapshot.class);
+		
+		Assert.assertEquals(TaskStatus.SUCCESSFULLY_DONE, snapshot.getStatus());
+		Assert.assertEquals("Person", snapshot.getResult().getClass().getName());
+		
+		((AbstractScriptTask) task).getFuture().cancel(true);
+	}
 }
