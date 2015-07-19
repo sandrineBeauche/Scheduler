@@ -21,6 +21,11 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Test marshalling and unmarshalling of ScriptSnapshot objects.
+ * @author Sandrine Ben Mabrouk.
+ *
+ */
 public class MarshallingTest {
 
 	
@@ -38,6 +43,14 @@ public class MarshallingTest {
 		return result;
 	}
 	
+	/**
+	 * Unmarshal and marshal to JSON the content of a given file
+	 * @param filename the filename of the file to be unmarshalled.
+	 * @return the resulting string.
+	 * @throws JsonParseException occurs when non-well-formed content (content that does not conform to JSON syntax as per specification) is encountered.
+	 * @throws JsonMappingException signal fatal problems with mapping of content.
+	 * @throws IOException if I/O error occurs.
+	 */
 	protected String marshalUnmarshal(String filename) throws JsonParseException, JsonMappingException, IOException{
 		File inputFile = new File(TestUtils.class.getClassLoader().getResource(filename).getFile());
 		ScriptSnapshot snapshot = mapper.readValue(inputFile, ScriptSnapshot.class);
@@ -48,6 +61,13 @@ public class MarshallingTest {
 		return removeCharacters(result);
 	}
 	
+	
+	/**
+	 * Test with a ScriptSnapshot that contains a complex POJO in the field "result"
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@Test
 	public void testMarshallingUnmarshallingComplexResult() throws JsonParseException, JsonMappingException, IOException {
 		String result = marshalUnmarshal("complexResult.json");
@@ -56,7 +76,12 @@ public class MarshallingTest {
 		Assert.assertThat(result, equalToIgnoringWhiteSpace(expected));
 	}
 
-	
+	/**
+	 * Test with a ScriptSnapshot with a null value for the field "result".
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@Test
 	public void testMarshallingUnmarshallingNoResult() throws JsonParseException, JsonMappingException, IOException {
 		String result = marshalUnmarshal("noResult.json");

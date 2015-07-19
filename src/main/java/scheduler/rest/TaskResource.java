@@ -26,15 +26,23 @@ import scheduler.engine.Task;
 import scheduler.engine.UnknownTaskException;
 
 /**
- * Root resource (exposed at "myresource" path)
+ * Task resource that allows accessing to the scheduler and created tasks.
+ * @author Sandrine Ben Mabrouk.
  */
 @Path("scheduler/task")
 public class TaskResource {
 
+	/**
+	 * Logger.
+	 */
 	static final Logger LOG = LoggerFactory.getLogger(TaskResource.class);
 	
    
-    
+    /**
+     * Override the response status with the given code.
+     * @param response the response to be returned to the client.
+     * @param status the new code status.
+     */
     protected void setResponseStatus(HttpServletResponse response, Status status){
     	LOG.info("HTTP serlet response is of type " + response.getClass().getName());
     	response.setStatus(status.getStatusCode());
@@ -43,7 +51,12 @@ public class TaskResource {
         }catch(Exception e){}
     }
     
-    
+    /**
+     * Submit a new script.
+     * @param script the script content
+     * @param response the current servlet reponse, injected by Jersey.
+     * @return the id of the created task.
+     */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
@@ -57,6 +70,10 @@ public class TaskResource {
     }
     
     
+    /**
+     * Get the list of running tasks.
+     * @return the list of running tasks.
+     */
     @GET
     @Path("running")
     @Produces(MediaType.APPLICATION_JSON)
@@ -64,7 +81,10 @@ public class TaskResource {
     	return ScriptScheduler.getInstance().getRunningTasks();
     }
     
-    
+    /**
+     * Get the list of finished tasks.
+     * @return the list of finished tasks.
+     */
     @GET
     @Path("finished")
     @Produces(MediaType.APPLICATION_JSON)
@@ -73,6 +93,12 @@ public class TaskResource {
     }
     
     
+    /**
+     * Get the status and result of a task specified by its id.
+     * @param id the task id.
+     * @return the status and result of the task.
+     * @throws NotFoundException if the task does not exist.
+     */
     @GET 
     @Path("{taskId}/status")
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,6 +114,11 @@ public class TaskResource {
     }
     
     
+    /**
+     * Delete a task specified by its id.
+     * @param id the task id.
+     * @throws NotFoundException if the task does not exist.
+     */
     @DELETE
     @Path("{taskId}")
     public void removeTask(@PathParam("taskId") long id) throws NotFoundException{

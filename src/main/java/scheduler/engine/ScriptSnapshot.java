@@ -48,10 +48,18 @@ public class ScriptSnapshot {
 		return result;
 	}
 
+	/**
+	 * Set the status to this snapshot.
+	 * @param status the new status.
+	 */
 	public void setStatus(TaskStatus status) {
 		this.status = status;
 	}
 
+	/**
+	 * Set the result to this snapshot.
+	 * @param result the new result.
+	 */
 	public void setResult(Object result) {
 		this.result = result;
 	}

@@ -8,6 +8,11 @@ import org.hamcrest.Matcher;
 import scheduler.engine.ScriptSnapshot;
 import scheduler.engine.TaskStatus;
 
+/**
+ * A convenient matcher to compare a ScriptSnapshot object with its status and result type only.
+ * @author Sandrine Ben Mabrouk.
+ *
+ */
 public class ScriptSnapshotMatcher extends BaseMatcher<ScriptSnapshot> {
 
 	protected TaskStatus expectedStatus;

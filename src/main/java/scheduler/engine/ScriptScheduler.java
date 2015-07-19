@@ -44,9 +44,15 @@ public class ScriptScheduler {
 	 */
 	protected int maxNbThread;
 	
-	
+	/**
+	 * Singleton instance.
+	 */
 	private static ScriptScheduler INSTANCE = null;
 
+	/**
+	 * Get the singleton ScriptScheduler instance.
+	 * @return the singleton ScriptScheduler instance.
+	 */
 	public static final ScriptScheduler getInstance() {
 	   if(INSTANCE == null){
 		   INSTANCE = new ScriptScheduler();

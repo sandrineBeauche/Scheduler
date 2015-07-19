@@ -1,5 +1,5 @@
 /**
- * The scheduler engine that performs script launching.
+ * The scheduler engine that performs script execution.
  * @author Sandrine Ben Mabrouk
  *
  */

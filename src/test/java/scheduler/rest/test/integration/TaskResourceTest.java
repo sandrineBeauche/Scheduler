@@ -47,10 +47,21 @@ import scheduler.rest.SchedulerObjectMapperProvider;
 import scheduler.rest.TaskResource;
 import scheduler.rest.test.TestUtils;
 
+/**
+ * Integration tests with the rest api.
+ * @author Sandrine Ben Mabrouk.
+ *
+ */
 public class TaskResourceTest extends JerseyTest {
 
+	/**
+	 * The script scheduler used by the rest api.
+	 */
 	protected ScriptScheduler scheduler = null;
 	
+	/**
+	 * Configure the rest application to be tested.
+	 */
 	@Override
     protected Application configure() {
 		enable(TestProperties.LOG_TRAFFIC);
@@ -59,12 +70,18 @@ public class TaskResourceTest extends JerseyTest {
         return result;
     }
 	
+	/**
+	 * Configure the rest application to be tested.
+	 */
 	@Override
 	protected void configureClient(ClientConfig config) {
 	    config.register(JacksonFeature.class);
 	}
 	
 	
+	/**
+	 * Configure the test container in order to inject servlet response when requesting a resource.
+	 */
 	@Override
 	protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
 		//return new GrizzlyTestContainerFactory();
@@ -109,7 +126,9 @@ public class TaskResourceTest extends JerseyTest {
 	
 
 	
-	
+	/**
+	 * Starts the scheduler before each test.
+	 */
 	@Before
 	public void setUp() throws Exception {
 		ScriptScheduler.getInstance().setMaxNbThread(5);
@@ -119,6 +138,9 @@ public class TaskResourceTest extends JerseyTest {
 	}
 	
 	
+	/**
+	 * Stop the scheduler after each test.
+	 */
 	@After
 	public void tearDown() throws Exception {
 		this.scheduler.shutdown();
@@ -145,6 +167,11 @@ public class TaskResourceTest extends JerseyTest {
 		Assert.assertEquals(201, response.getStatus());
     }
 	
+	
+	/**
+	 * Test getting the list of running tasks. 
+	 * @throws IOException if an error occurs during the script reading.
+	 */
 	@Test
 	public void testGetRunning() throws IOException{
 		String script1 = TestUtils.readScriptFile("LongScript.groovy");
@@ -284,7 +311,7 @@ public class TaskResourceTest extends JerseyTest {
 	
 	
 	/**
-	 * Test groovy script launching and get the result with a snapshot.
+	 * Test getting the result of a running task.
 	 * @throws IOException if an error occurs during the script reading.
 	 */
 	@Test
@@ -304,7 +331,7 @@ public class TaskResourceTest extends JerseyTest {
 	
 	
 	/**
-	 * Test groovy script launching and get the result with a snapshot.
+	 * Test getting the result of a cancelled task.
 	 * @throws IOException if an error occurs during the script reading.
 	 */
 	@Test
@@ -323,7 +350,7 @@ public class TaskResourceTest extends JerseyTest {
 	
 	
 	/**
-	 * Test groovy script launching and get the result with a snapshot.
+	 * Test groovy script that return a simple type.
 	 * @throws IOException if an error occurs during the script reading.
 	 */
 	@Test
@@ -345,7 +372,7 @@ public class TaskResourceTest extends JerseyTest {
 	
 	
 	/**
-	 * Test groovy script launching and get the result with a snapshot.
+	 * Test groovy script that throw an exception.
 	 * @throws IOException if an error occurs during the script reading.
 	 */
 	@Test
@@ -365,7 +392,7 @@ public class TaskResourceTest extends JerseyTest {
 	
 	
 	/**
-	 * Test groovy script launching and get the result with a snapshot.
+	 * Test groovy script that return a complex POJO.
 	 * @throws IOException if an error occurs during the script reading.
 	 */
 	@Test
